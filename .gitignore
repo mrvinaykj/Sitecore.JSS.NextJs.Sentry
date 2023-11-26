@@ -19,6 +19,7 @@
 .DS_Store
 
 # local env files
+.env
 .env.local
 .env.*.local
 
@@ -28,3 +29,9 @@
 
 # vercel
 .vercel
+
+# Sentry Auth Token
+.sentryclirc
+
+# Sentry Auth Token
+.sentryclirc

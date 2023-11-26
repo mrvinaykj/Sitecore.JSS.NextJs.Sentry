@@ -1,4 +1,10 @@
-import { Text, Field, withDatasourceCheck, RichText, Placeholder } from '@sitecore-jss/sitecore-jss-nextjs';
+import {
+  Text,
+  Field,
+  withDatasourceCheck,
+  RichText,
+  Placeholder,
+} from '@sitecore-jss/sitecore-jss-nextjs';
 import { ComponentProps } from 'lib/component-props';
 
 type SampleComponentProps = ComponentProps & {

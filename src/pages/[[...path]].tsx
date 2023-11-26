@@ -15,13 +15,14 @@ import { sitecorePagePropsFactory } from 'lib/page-props-factory';
 // different componentFactory method will be used based on whether page is being edited
 import { componentFactory, editingComponentFactory } from 'temp/componentFactory';
 import { sitemapFetcher } from 'lib/sitemap-fetcher';
+import * as Sentry from '@sentry/nextjs';
+import { extractPath } from 'lib/page-props-factory/extract-path';
 
 const SitecorePage = ({ notFound, componentProps, layoutData }: SitecorePageProps): JSX.Element => {
   useEffect(() => {
     // Since Sitecore editors do not support Fast Refresh, need to refresh editor chromes after Fast Refresh finished
     handleEditorFastRefresh();
   }, []);
-
   if (notFound || !layoutData.sitecore.route) {
     // Shouldn't hit this (as long as 'notFound' is being returned below), but just to be safe
     return <NotFound />;
@@ -30,6 +31,15 @@ const SitecorePage = ({ notFound, componentProps, layoutData }: SitecorePageProp
   const isEditing = layoutData.sitecore.context.pageEditing;
   const isComponentRendering =
     layoutData.sitecore.context.renderingType === RenderingType.Component;
+
+  Sentry.setContext('jss-sitecore-page', {
+    isEditing: isEditing,
+    renderingType: layoutData?.sitecore?.context?.renderingType,
+    dataBaseName: layoutData?.sitecore?.route?.databaseName,
+    site: layoutData?.sitecore?.context?.site,
+    language: layoutData?.sitecore?.context?.language,
+    path: layoutData?.sitecore?.route?.name,
+  });
 
   return (
     <ComponentPropsContext value={componentProps}>
@@ -89,6 +99,9 @@ export const getStaticPaths: GetStaticPaths = async (context) => {
 export const getStaticProps: GetStaticProps = async (context) => {
   const props = await sitecorePagePropsFactory.create(context);
 
+  Sentry.setContext('jss-sitecore-page-getStaticProps', {
+    path: extractPath(context?.params),
+  });
   // Check if we have a redirect (e.g. custom error page)
   if (props.redirect) {
     return {
